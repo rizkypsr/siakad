@@ -1,0 +1,13 @@
+@startuml
+actor "Admin Fakultas" as AF
+participant "Sistem" as S
+database DB
+
+AF -> S : Tambah Fakultas / Prodi / Dosen
+S -> DB : Insert master data
+DB --> S : OK
+
+AF -> S : Update data
+S -> DB : Update master data
+DB --> S : OK
+@enduml
