@@ -1,0 +1,15 @@
+@startuml
+actor "Mahasiswa Baru" as M
+participant "Sistem" as S
+database DB
+
+M -> S : Registrasi akun
+S -> DB : Simpan user
+DB --> S : OK
+
+M -> S : Isi data pribadi
+S -> DB : Simpan mahasiswa\n(status=pending)
+DB --> S : OK
+
+S --> M : Registrasi berhasil
+@enduml
