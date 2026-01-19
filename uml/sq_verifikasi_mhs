@@ -1,0 +1,16 @@
+@startuml
+actor "Admin Fakultas" as A
+participant "Sistem" as S
+database DB
+
+A -> S : Lihat pendaftar
+S -> DB : Ambil mahasiswa pending
+DB --> S : Data mahasiswa
+
+A -> S : Approve pendaftaran
+S -> S : Generate NIM
+S -> DB : Update mahasiswa\n(status=aktif)
+DB --> S : OK
+
+S --> A : Verifikasi selesai
+@enduml
