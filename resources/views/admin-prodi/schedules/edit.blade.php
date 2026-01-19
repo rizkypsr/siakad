@@ -1,0 +1,80 @@
+<x-app-layout>
+    <x-slot name="header">Edit Jadwal</x-slot>
+    <x-slot name="title">Edit Jadwal</x-slot>
+
+    <x-card>
+        <form action="{{ route('schedules.update', $schedule) }}" method="POST" class="space-y-6">
+            @csrf
+            @method('PUT')
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <x-input-label for="course_id" value="Mata Kuliah" />
+                    <select id="course_id" name="course_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                        @foreach($courses as $course)
+                            <option value="{{ $course->id }}" {{ old('course_id', $schedule->course_id) == $course->id ? 'selected' : '' }}>{{ $course->code }} - {{ $course->name }}</option>
+                        @endforeach
+                    </select>
+                    <x-input-error :messages="$errors->get('course_id')" class="mt-2" />
+                </div>
+                <div>
+                    <x-input-label for="lecturer_id" value="Dosen" />
+                    <select id="lecturer_id" name="lecturer_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                        @foreach($lecturers as $lecturer)
+                            <option value="{{ $lecturer->id }}" {{ old('lecturer_id', $schedule->lecturer_id) == $lecturer->id ? 'selected' : '' }}>{{ $lecturer->user->name }}</option>
+                        @endforeach
+                    </select>
+                    <x-input-error :messages="$errors->get('lecturer_id')" class="mt-2" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4">
+                <div>
+                    <x-input-label for="day" value="Hari" />
+                    <select id="day" name="day" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                        @foreach(['senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'] as $day)
+                            <option value="{{ $day }}" {{ old('day', $schedule->day) == $day ? 'selected' : '' }}>{{ ucfirst($day) }}</option>
+                        @endforeach
+                    </select>
+                    <x-input-error :messages="$errors->get('day')" class="mt-2" />
+                </div>
+                <div>
+                    <x-input-label for="start_time" value="Jam Mulai" />
+                    <x-text-input id="start_time" name="start_time" type="time" class="mt-1 block w-full" :value="old('start_time', substr($schedule->start_time, 0, 5))" required />
+                    <x-input-error :messages="$errors->get('start_time')" class="mt-2" />
+                </div>
+                <div>
+                    <x-input-label for="end_time" value="Jam Selesai" />
+                    <x-text-input id="end_time" name="end_time" type="time" class="mt-1 block w-full" :value="old('end_time', substr($schedule->end_time, 0, 5))" required />
+                    <x-input-error :messages="$errors->get('end_time')" class="mt-2" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4">
+                <div>
+                    <x-input-label for="room" value="Ruang" />
+                    <x-text-input id="room" name="room" type="text" class="mt-1 block w-full" :value="old('room', $schedule->room)" required />
+                    <x-input-error :messages="$errors->get('room')" class="mt-2" />
+                </div>
+                <div>
+                    <x-input-label for="academic_year" value="Tahun Akademik" />
+                    <x-text-input id="academic_year" name="academic_year" type="text" class="mt-1 block w-full" :value="old('academic_year', $schedule->academic_year)" required />
+                    <x-input-error :messages="$errors->get('academic_year')" class="mt-2" />
+                </div>
+                <div>
+                    <x-input-label for="semester_type" value="Semester" />
+                    <select id="semester_type" name="semester_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                        <option value="ganjil" {{ old('semester_type', $schedule->semester_type) == 'ganjil' ? 'selected' : '' }}>Ganjil</option>
+                        <option value="genap" {{ old('semester_type', $schedule->semester_type) == 'genap' ? 'selected' : '' }}>Genap</option>
+                    </select>
+                    <x-input-error :messages="$errors->get('semester_type')" class="mt-2" />
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <x-link-button href="{{ route('schedules.index') }}" variant="secondary">Batal</x-link-button>
+                <x-button type="submit">Update</x-button>
+            </div>
+        </form>
+    </x-card>
+</x-app-layout>
