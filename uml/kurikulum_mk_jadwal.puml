@@ -1,0 +1,15 @@
+@startuml
+actor "Admin Prodi" as AP
+participant "Sistem" as S
+database DB
+
+AP -> S : Buat kurikulum
+S -> DB : Simpan kurikulum
+
+AP -> S : Tambah mata kuliah
+S -> DB : Simpan mata kuliah
+
+AP -> S : Atur jadwal kuliah
+S -> DB : Simpan jadwal
+DB --> S : OK
+@enduml
