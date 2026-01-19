@@ -85,34 +85,201 @@
 
 ## Struktur Database
 
-### Tabel Utama
-| Tabel | Keterangan |
-|-------|------------|
-| users | Akun login (semua role) |
-| faculties | Data fakultas |
-| study_programs | Program studi |
-| students | Data mahasiswa |
-| lecturers | Data dosen |
-| curriculums | Kurikulum per prodi |
-| courses | Mata kuliah |
-| schedules | Jadwal kuliah (soft delete) |
-| dkbs | Header DKBS mahasiswa |
-| dkbs_details | Detail mata kuliah di DKBS |
-| grades | Nilai mahasiswa |
-| transcripts | Rekap transkrip per semester |
+### users
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| id | bigint | PK |
+| name | string | |
+| email | string | unique |
+| email_verified_at | timestamp | nullable |
+| password | string | |
+| role | enum | admin_fakultas, admin_prodi, dosen, mahasiswa (default: mahasiswa) |
+| is_active | boolean | default: true |
+| remember_token | string | nullable |
+| created_at | timestamp | |
+| updated_at | timestamp | |
 
-### Relasi Penting
-```
-users ─┬─ students
-       └─ lecturers
+Index: `email` (unique), `role`, `is_active`
 
-faculties ── study_programs ─┬─ students
-                             ├─ lecturers
-                             └─ curriculums ── courses ── schedules
+---
 
-students ── dkbs ── dkbs_details ─┬─ schedules
-                                  └─ grades
-```
+### faculties
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| id | bigint | PK |
+| code | string | unique |
+| name | string | |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+Index: `code` (unique), `name`
+
+---
+
+### study_programs
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| id | bigint | PK |
+| faculty_id | bigint | FK → faculties (cascade delete) |
+| code | string | unique |
+| name | string | |
+| degree | string | S1, S2, D3 |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+Index: `faculty_id` (auto), `code` (unique), `degree`
+
+---
+
+### students
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| id | bigint | PK |
+| user_id | bigint | FK → users (cascade delete) |
+| nim | string | unique, nullable (sebelum approve) |
+| study_program_id | bigint | FK → study_programs (cascade delete) |
+| year_of_entry | year | Tahun masuk |
+| status | enum | aktif, cuti, lulus (default: aktif) |
+| registration_status | enum | pending, approved, rejected (default: pending) |
+| phone | string | nullable |
+| address | text | nullable |
+| birth_date | date | nullable |
+| birth_place | string | nullable |
+| gender | enum | L, P (nullable) |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+Index: `nim` (unique), `user_id` (auto), `study_program_id` (auto), `status`, `year_of_entry`
+
+---
+
+### lecturers
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| id | bigint | PK |
+| user_id | bigint | FK → users (cascade delete) |
+| nidn | string | unique |
+| study_program_id | bigint | FK → study_programs (cascade delete) |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+Index: `nidn` (unique), `user_id` (auto), `study_program_id` (auto)
+
+---
+
+### curriculums
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| id | bigint | PK |
+| study_program_id | bigint | FK → study_programs (cascade delete) |
+| year | year | Tahun kurikulum |
+| is_active | boolean | default: true |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+Index: `study_program_id` (auto), `year`, `is_active`
+
+---
+
+### courses
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| id | bigint | PK |
+| curriculum_id | bigint | FK → curriculums (cascade delete) |
+| code | string | |
+| name | string | |
+| sks | integer | |
+| semester | integer | 1-8 |
+| prerequisite_course_id | bigint | FK → courses (null on delete), nullable |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+Index: `curriculum_id` (auto), `code`, `semester`, `prerequisite_course_id` (auto)
+
+---
+
+### schedules - SOFT DELETE
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| id | bigint | PK |
+| course_id | bigint | FK → courses (cascade delete) |
+| lecturer_id | bigint | FK → lecturers (cascade delete) |
+| day | enum | senin, selasa, rabu, kamis, jumat, sabtu |
+| start_time | time | |
+| end_time | time | |
+| room | string | |
+| academic_year | string | contoh: 2025/2026 |
+| semester_type | enum | ganjil, genap |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+| deleted_at | timestamp | Soft delete |
+
+Index: `course_id` (auto), `lecturer_id` (auto), `academic_year`, `semester_type`
+Composite Index: `(day, start_time, end_time)`
+
+---
+
+### dkbs
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| id | bigint | PK |
+| student_id | bigint | FK → students (cascade delete) |
+| academic_year | string | contoh: 2025/2026 |
+| semester | integer | Semester mahasiswa |
+| status | enum | draft, submitted, approved (default: draft) |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+Index: `student_id` (auto), `status`
+Unique: `(student_id, academic_year, semester)`
+
+---
+
+### dkbs_details
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| id | bigint | PK |
+| dkbs_id | bigint | FK → dkbs (cascade delete) |
+| schedule_id | bigint | FK → schedules (cascade delete) |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+Index: `dkbs_id` (auto), `schedule_id` (auto)
+Unique: `(dkbs_id, schedule_id)`
+
+---
+
+### grades
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| id | bigint | PK |
+| dkbs_detail_id | bigint | FK → dkbs_details (cascade delete) |
+| tugas | decimal(5,2) | nullable |
+| uts | decimal(5,2) | nullable |
+| uas | decimal(5,2) | nullable |
+| final_score | decimal(5,2) | nullable |
+| grade_letter | char(1) | A-E, nullable |
+| is_locked | boolean | default: false |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+Index: `dkbs_detail_id` (auto), `grade_letter`
+
+---
+
+### transcripts
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| id | bigint | PK |
+| student_id | bigint | FK → students (cascade delete) |
+| semester | integer | |
+| gpa | decimal(4,2) | IP semester |
+| cgpa | decimal(4,2) | IPK kumulatif, nullable |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+Index: `student_id` (auto)
+Unique: `(student_id, semester)`
 
 ---
 
