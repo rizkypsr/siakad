@@ -5,8 +5,21 @@
 - MySQL
 - Blade + Tailwind CSS
 - Laravel Breeze (Authentication)
+- PHP 8.4
 
 ---
+
+### Menjalankan Aplikasi
+```bash
+# Install dependencies
+composer install && npm install
+
+# Fresh migrate + seed
+php artisan migrate:fresh --seed
+
+# running
+composer run dev
+```
 
 ## Fitur yang Sudah Diimplementasikan
 
