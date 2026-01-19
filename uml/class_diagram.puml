@@ -1,0 +1,114 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class User {
+  +id
+  +name
+  +email
+  +password
+  +role
+  +is_active
+}
+
+class Student {
+  +id
+  +nim
+  +year_of_entry
+  +status
+  +registration_status
+  +phone
+  +address
+  +birth_date
+  +birth_place
+  +gender
+}
+
+class Lecturer {
+  +id
+  +nidn
+}
+
+class Faculty {
+  +id
+  +code
+  +name
+}
+
+class StudyProgram {
+  +id
+  +code
+  +name
+  +degree
+}
+
+class Curriculum {
+  +id
+  +year
+  +is_active
+}
+
+class Course {
+  +id
+  +code
+  +name
+  +sks
+  +semester
+}
+
+class Schedule {
+  +id
+  +day
+  +start_time
+  +end_time
+  +room
+  +academic_year
+  +semester_type
+}
+
+class DKBS {
+  +id
+  +academic_year
+  +semester
+  +status
+}
+
+class DKBSDetail {
+  +id
+}
+
+class Grade {
+  +id
+  +tugas
+  +uts
+  +uas
+  +final_score
+  +grade_letter
+  +is_locked
+}
+
+class Transcript {
+  +id
+  +semester
+  +gpa
+  +cgpa
+}
+
+User "1" -- "1" Student
+User "1" -- "1" Lecturer
+
+Faculty "1" -- "many" StudyProgram
+StudyProgram "1" -- "many" Student
+StudyProgram "1" -- "many" Lecturer
+StudyProgram "1" -- "many" Curriculum
+
+Curriculum "1" -- "many" Course
+Course "1" -- "many" Schedule
+Lecturer "1" -- "many" Schedule
+
+Student "1" -- "many" DKBS
+DKBS "1" -- "many" DKBSDetail
+Schedule "1" -- "many" DKBSDetail
+
+DKBSDetail "1" -- "1" Grade
+Student "1" -- "many" Transcript
+@enduml
